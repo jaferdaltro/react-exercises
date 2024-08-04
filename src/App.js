@@ -6,44 +6,49 @@ class App extends Component {
 
   state = {
     count: 0,
-    name: 'Jafer'
+    posts: [
+      {
+        id: 1,
+        title: 'Tiburcio',
+        body: 'this is Tiburcio'
+      },
+      {
+        id: 2,
+        title: 'Confucio',
+        body: 'This is Confucio'
+      },
+      {
+        id: 3,
+        title: 'Emengarda',
+        body: 'This is Emengarda'
+      },
+    ]
   }
 
-  handlerNameClick = () => {
-    const { name } = this.state;
-    this.setState({name: 'Júnior'});
-  }
+  componentDidMount() {
+    const { posts, count } = this.state;
+    posts[0].title = 'jafer';
 
-  handleCountClick = (event) => {
-    event.preventDefault();
-    const { count } = this.state;
-    this.setState({count: count + 1} );
+    setTimeout(()=>{
+      this.setState(posts)
+    }, 5000);
+   
   }
 
 
   render() {
-    const { name } = this.state;
-    const { count } = this.state;
+    const { posts } = this.state;
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p onClick={this.handlerNameClick}>
-            {name} {count}
-          </p>
-          <a
-            onClick={this.handleCountClick}
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+        {posts.map(p => (
+          <div key={p.id}>
+            <h1> {p.title}</h1>
+            <p>{p.body}</p>
+          </div>
+        ))
+        }
       </div>
     )
-
   }
 }
 
