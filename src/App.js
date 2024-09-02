@@ -1,76 +1,79 @@
-import logo from './logo.svg';
-import './App.css';
 import { Component } from 'react';
+
+import './App.css';
+
+import { Posts } from './components/Posts';
+import { Button } from './components/Button';
+import { loadPosts } from './utils/load-posts'
 
 class App extends Component {
 
   state = {
-    count: 0,
-    posts: [
-      {
-        id: 1,
-        title: 'Tiburcio',
-        body: 'this is Tiburcio'
-      },
-      {
-        id: 2,
-        title: 'Confucio',
-        body: 'This is Confucio'
-      },
-      {
-        id: 3,
-        title: 'Emengarda',
-        body: 'This is Emengarda'
-      },
-    ]
+    allPosts: [],
+    posts: [],
+    page: 0,
+    postPerPage: 10,
+    searchTitle: ''
   }
 
-  componentDidMount() {
-    const { posts, count } = this.state;
-    posts[0].title = 'jafer';
-
-    setTimeout(()=>{
-      this.setState(posts)
-    }, 5000);
-   
+  async componentDidMount() {
+    await this.loadPosts();
   }
 
+  loadPosts = async () => {
+    const postsAndPhotos = await loadPosts();
+    const { page, postPerPage } = this.state;
+    this.setState({
+      posts: postsAndPhotos.slice(page, postPerPage),
+      allPosts: postsAndPhotos
+    });
+  }
+
+  loadMorePosts = () => {
+    const { allPosts, posts, page, postPerPage } = this.state;
+    const nextPage = page + postPerPage;
+    const nextPosts = allPosts.slice(nextPage, nextPage + postPerPage);
+    posts.push(...nextPosts);
+
+    this.setState({
+      posts,
+      page: nextPage
+    })
+  }
+
+  handleSearch = (e) => {
+    const {value} = e.target;
+
+    this.setState({searchTitle: value})
+  }
 
   render() {
-    const { posts } = this.state;
+    const { posts, allPosts, searchTitle } = this.state;
+    const noMorePosts = posts.length >= allPosts.length 
+    const filteredPosts = !!searchTitle ? 
+      posts.filter( post => post.title.toLowerCase().includes(searchTitle.toLowerCase()))
+      : posts;
+
     return (
-      <div className="App">
-        {posts.map(p => (
-          <div key={p.id}>
-            <h1> {p.title}</h1>
-            <p>{p.body}</p>
-          </div>
-        ))
-        }
-      </div>
+      <section className='container'>
+        <h1>Search</h1>
+        <input 
+          type="search"
+          onChange={this.handleSearch}
+        /> <br/> <br/>
+        <Posts posts={filteredPosts} />
+        <div className="button-container">
+          {!searchTitle && (
+          <Button
+            text={'Load Posts'}
+            onClick={this.loadMorePosts}
+            disabled={noMorePosts}
+          />
+        )}
+        </div>
+      </section>
     )
   }
 }
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
 
 export default App;
